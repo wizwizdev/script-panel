@@ -35,7 +35,9 @@ fi
   echo -e  "7. backup HexaSoftwareTech"
   echo -e  "8. backup Npanel"
   echo -e  "9. backup Marzban"
-  echo -e  "10. Exit"
+  echo -e  "10. tunel ip-forward"
+  echo -e  "11. Exit"
+  echo " "
   read -p "Please Select Action: " choice
   echo " "
 
@@ -301,7 +303,46 @@ elif [ "$choice" = "9" ]; then
 	echo -e "\xE2\x98\x85 \e[94mThe backup settings have been successfully completed.\033[0m\n"
 	
 	
-elif [ "$choice" = "9" ]; then
+	elif [ "$choice" = "10" ]; then
+	
+	wait
+
+	# install 
+	sudo apt-get install iptables -y
+	sudo apt update && apt upgrade -y
+
+	echo " "
+	
+	printf "\e[33m[!] \e[36mEnter ip iran: \033[0m"
+	read ipiran
+	printf "\e[33m[!] \e[36mEnter port iran: \033[0m"
+	read portiran
+	printf "\e[33m[!] \e[36mEnter ip kharej: \033[0m"
+	read ipkharej
+	echo " "
+	if [ "$ipiran" = "" ] || [ "$portiran" = "" ] || [ "$ipkharej" = "" ]; then
+	exit
+	fi
+
+	sysctl net.ipv4.ip_forward=1
+	iptables -t nat -A PREROUTING -p tcp --dport $portiran -j DNAT --to-destination $ipiran
+	iptables -t nat -A PREROUTING -j DNAT --to-destination $ipkharej
+	iptables -t nat -A POSTROUTING -j MASQUERADE
+
+	echo "#!/bin/sh -e" >> /etc/rc.local
+	echo "sysctl net.ipv4.ip_forward=1" >> /etc/rc.local
+	echo "iptables -t nat -A PREROUTING -p tcp --dport ${portiran} -j DNAT --to-destination ${ipiran}" >> /etc/rc.local
+	echo "iptables -t nat -A PREROUTING -j DNAT --to-destination ${ipkharej}" >> /etc/rc.local
+	echo "iptables -t nat -A POSTROUTING -j MASQUERADE" >> /etc/rc.local
+	echo "exit 0" >> /etc/rc.local
+
+	chmod +x /etc/rc.local
+
+	wait
+
+	echo -e "\n\e[92mYour ip forward tunnel has been set up successfully!\033[0m\n"
+	
+elif [ "$choice" = "11" ]; then
 
 exit
 
