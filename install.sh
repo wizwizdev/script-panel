@@ -15,7 +15,7 @@ echo -e "\e[32m
 
 echo -e "\n\e[92mplease wait ...\033[0m\n"
 
-sleep 2
+sleep 1
 
 if [ "$(id -u)" -ne 0 ]; then
     echo -e "\n\033[33mPlease run as root\033[0m"
@@ -36,7 +36,8 @@ fi
   echo -e  "8. backup Npanel"
   echo -e  "9. backup Marzban"
   echo -e  "10. tunel ip-forward"
-  echo -e  "11. Exit"
+  echo -e  "11. reset backup"
+  echo -e  "99. Exit"
   echo " "
   read -p "Please Select Action: " choice
   echo " "
@@ -149,7 +150,7 @@ elif [ "$choice" = "4" ]; then
 
 	(crontab -l ; echo "*/${CRON_TAB} * * * * /usr/bin/php /root/x-ui-english.php >/dev/null 2>&1") | sort - | uniq - | crontab -
 
-	
+
 	clear
 	
 	sleep 0.7
@@ -216,7 +217,6 @@ elif [ "$choice" = "8" ]; then
 	(crontab -l ; echo "*/${CRON_TAB} * * * * /usr/bin/php /root/Npanel.php >/dev/null 2>&1") | sort - | uniq - | crontab -
 
 
-	
 	clear
 	
 	sleep 0.7
@@ -342,7 +342,35 @@ elif [ "$choice" = "9" ]; then
 
 	echo -e "\n\e[92mYour ip forward tunnel has been set up successfully!\033[0m\n"
 	
-elif [ "$choice" = "11" ]; then
+	
+	elif [ "$choice" = "11" ]; then
+	
+	wait
+	
+	sudo rm /root/Marzban.php
+	sudo rm /root/Npanel.php
+	sudo rm /root/x-ui-english.php
+	sudo rm /root/x-ui.php
+	
+	clear
+	
+	# Delete cron job for /root/Marzban.php
+	(crontab -l | grep -v "/root/Marzban.php") | crontab -
+
+	# Delete cron job for /root/Npanel.php
+	(crontab -l | grep -v "/root/Npanel.php") | crontab -
+	
+	# Delete cron job for /root/x-ui-english.php
+	(crontab -l | grep -v "/root/x-ui-english.php") | crontab -
+
+	# Delete cron job for /root/x-ui.php
+	(crontab -l | grep -v "/root/x-ui.php") | crontab -
+	
+	wait
+
+	echo -e "\n\e[92mYour backup settings have been reset successfully!\033[0m\n"
+	
+elif [ "$choice" = "99" ]; then
 
 exit
 
